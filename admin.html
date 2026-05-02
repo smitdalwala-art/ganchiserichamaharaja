@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+
+  <style>body {
+  margin: 0;
+  font-family: Arial;
+  background: #FFF7FA;
+  text-align: center;
+}
+
+/* HEADER */
+header {
+  padding: 20px;
+  background: #ffe4ec;
+}
+
+h1 {
+  color: #C2185B;
+}
+
+/* FORM AREA */
+section {
+  padding: 10px;
+}
+
+input,
+select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #f8bbd0;
+  margin: 5px;
+  width: 250px;
+  max-width: 90%;
+}
+
+button {
+  padding: 8px 12px;
+  background: #C2185B;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+/* ✅ FLEXIBLE GALLERY */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  padding: 10px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 260px;
+  margin: auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* MEDIA */
+.card img,
+.card video {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* COMMENTS */
+#commentList {
+  width: 90%;
+  max-width: 700px;
+  margin: 20px auto;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.comment-item {
+  padding: 10px;
+  background: #f9f9f9;
+  margin-bottom: 10px;
+  border-left: 4px solid #C2185B;
+}
+
+/* ✅ MOBILE */
+@media (max-width: 600px) {
+  input,
+  select {
+    width: 90%;
+  }
+
+  .card {
+    max-width: 90%;
+  }
+
+  .card img,
+  .card video {
+    height: 140px;
+  }
+}</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Admin Panel</h1>
+</header>
+
+<section>
+
+  <!-- UPLOAD -->
+  <h2>Upload Media</h2>
+
+  <input type="text" id="imgUrl" placeholder="Paste Image/Video URL"><br>
+
+  <input type="number" id="imgYear" placeholder="Enter Year (e.g. 2025)"><br>
+
+  <select id="mediaType">
+    <option value="image">Image</option>
+    <option value="video">Video</option>
+  </select><br>
+
+  <button onclick="save()">Upload</button>
+
+  <hr>
+
+  <!-- GALLERY -->
+  <h2>Uploaded Media</h2>
+  <div id="adminGallery" class="gallery"></div>
+
+  <hr>
+
+  <!-- COMMENTS -->
+  <h2>Comments (Click Media)</h2>
+  <div id="commentList">Click image/video to load comments</div>
+
+</section>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAY5uTqa6oUBvMUtanpzsJvh1gGGoodbDk",
+  authDomain: "ganesh-mandal-51d9b.firebaseapp.com",
+  databaseURL: "https://ganesh-mandal-51d9b-default-rtdb.firebaseio.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+/* 🔥 SAVE MEDIA */
+function save() {
+  let url = document.getElementById("imgUrl").value.trim();
+  let year = document.getElementById("imgYear").value;
+  let type = document.getElementById("mediaType").value;
+
+  if (!url || !year) {
+    alert("Enter URL and Year!");
+    return;
+  }
+
+  firebase.database().ref("photos").push({
+    url: url,
+    year: year,
+    type: type
+  });
+
+  alert("Uploaded successfully!");
+
+  document.getElementById("imgUrl").value = "";
+  document.getElementById("imgYear").value = "";
+}
+
+/* 🔥 LOAD MEDIA */
+firebase.database().ref("photos").on("value", snap => {
+  let data = snap.val();
+  let gallery = document.getElementById("adminGallery");
+
+  gallery.innerHTML = "";
+
+  if (!data) {
+    gallery.innerHTML = "<h3>No Media Found</h3>";
+    return;
+  }
+
+  for (let key in data) {
+    let item = data[key];
+
+    let card = document.createElement("div");
+    card.className = "card";
+
+    if (item.type === "video") {
+      let video = document.createElement("video");
+      video.src = item.url;
+      video.controls = true;
+
+      video.onclick = () => loadComments(key);
+
+      card.appendChild(video);
+    } else {
+      let img = document.createElement("img");
+      img.src = item.url;
+
+      img.onerror = () => img.src = "https://via.placeholder.com/200";
+
+      img.onclick = () => loadComments(key);
+
+      card.appendChild(img);
+    }
+
+    let year = document.createElement("p");
+    year.innerText = "Year: " + item.year;
+
+    let delBtn = document.createElement("button");
+    delBtn.innerText = "🗑 Delete";
+    delBtn.onclick = () => deleteMedia(key);
+
+    card.appendChild(year);
+    card.appendChild(delBtn);
+
+    gallery.appendChild(card);
+  }
+});
+
+/* 🔥 DELETE MEDIA */
+function deleteMedia(id) {
+  if (confirm("Delete this media?")) {
+    firebase.database().ref("photos/" + id).remove();
+  }
+}
+
+/* 🔥 LOAD COMMENTS */
+function loadComments(id) {
+  let list = document.getElementById("commentList");
+
+  firebase.database().ref("comments/" + id).on("value", snap => {
+    list.innerHTML = "";
+
+    if (!snap.exists()) {
+      list.innerHTML = "<p>No comments</p>";
+      return;
+    }
+
+    snap.forEach(child => {
+      let data = child.val();
+      let key = child.key;
+
+      let div = document.createElement("div");
+      div.className = "comment-item";
+
+      div.innerHTML = `
+        💬 ${data.text}
+        <br><br>
+        <button onclick="deleteComment('${id}','${key}')">
+          Delete
+        </button>
+      `;
+
+      list.appendChild(div);
+    });
+  });
+}
+
+/* 🔥 DELETE COMMENT */
+function deleteComment(imageId, commentId) {
+  if (confirm("Delete this comment?")) {
+    firebase.database()
+      .ref("comments/" + imageId + "/" + commentId)
+      .remove();
+  }
+}
+</script>
+
+</body>
+</html>

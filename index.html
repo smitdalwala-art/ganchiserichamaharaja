@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ganesh Mandal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+ <style>
+     body {
+  font-family: Arial;
+  margin: 0;
+  background: #fff7fa;
+}
+
+/* HEADER */
+header {
+  background: #C2185B;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #ffe4ec;
+}
+
+.section {
+  margin: 20px;
+}
+
+.year-title {
+  color: #C2185B;
+  margin-left: 10px;
+}
+
+/* CAROUSEL */
+.carousel {
+  overflow-x: auto;
+  display: flex;
+  scroll-behavior: smooth;
+}
+
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* ✅ FIXED CARD SIZE */
+.card {
+  min-width: 250px;
+  max-width: 300px;   /* prevents over-expansion */
+  width: 100%;
+  margin: 10px;
+  background: white;
+  border: #C2185B 5px solid;
+  padding: 10px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* ✅ CONTROLLED IMAGE SIZE */
+.card img,
+.card video {
+  width: 100%;
+  height: 200px;       /* fixed height for consistency */
+  object-fit: contain; /* no cropping */
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+}
+
+.media-box {
+  width: 60%;
+  text-align: center;
+}
+
+.comment-box {
+  width: 35%;
+  color: white;
+}
+
+.close {
+  position: absolute;
+  right: 30px;
+  top: 20px;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+button {
+  padding: 8px;
+  margin: 5px;
+  background: #C2185B;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* TABLET */
+@media (max-width: 1024px) {
+  .media-box,
+  .comment-box {
+    width: 80%;
+  }
+
+  .card {
+    min-width: 45%;
+    max-width: 45%;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .modal {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .media-box,
+  .comment-box {
+    width: 90%;
+  }
+
+  .card {
+    min-width: 85%;
+    max-width: 90%;
+  }
+
+  header h1 {
+    font-size: 20px;
+  }
+
+  .card img,
+  .card video {
+    height: 180px;
+  }
+}
+
+/* SMALL MOBILE */
+@media (max-width: 480px) {
+  button {
+    width: 100%;
+  }
+
+  .card {
+    min-width: 90%;
+  }
+
+  .card img,
+  .card video {
+    height: 150px;
+  }
+}
+
+/* ✨ POPUP ANIMATION */
+.popup-box {
+  background: linear-gradient(135deg, #C2185B, #ff80ab);
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  width: 80%;
+  max-width: 400px;
+
+  transform: scale(0.5);
+  animation: zoomIn 0.6s ease forwards;
+}
+
+@keyframes zoomIn {
+  to {
+    transform: scale(1);
+  }
+}
+
+/* 🎆 FIREWORKS BACKGROUND */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjRjNnNjanNieXd1bGxpMDQyN2NpbTJsN3ViNXE2YzBod3hrbzJ1dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ZcJfRTp2dAWNkQB4pY/giphy.gif");
+  opacity: 0.15;
+  z-index: -1;
+}
+
+ </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🙏 Ghanchisheri Cha Maharaja</h1>
+  <h3><p style="color:#ffe4ec; text-decoration:none; font-weight:bold;">
+    Established In 1980</p></h3>
+  <p>
+    📍 
+    <a href="https://www.google.com/maps?q=Begampura+Ghanchisheri+Surat"
+       target="_blank"
+       style="color:#ffe4ec; text-decoration:none; font-weight:bold;">
+       Begampura Ghanchisheri, Surat
+    </a>
+    </a>
+  </p>
+<p>
+   <a href="https://www.instagram.com/ganchiserichamaharaja" target="_blank"
+          style="color:#ffe4ec; font-weight:bold; text-decoration:none;">
+          📸 Follow us on Instagram
+     </a>
+</p>
+</header>
+<!--Comming Soon-->
+<div id="comingSoonModal" class="modal">
+
+  <div class="popup-box">
+
+    <span class="close" onclick="closeComingSoon()">&times;</span>
+
+    <h2>🎉 Ganesh Chaturthi 2026</h2>
+    <p>🙏 Ghanchisheri Cha Maharaja</p>
+
+    <!-- COUNTDOWN -->
+    <h3 id="countdown"></h3>
+
+  </div>
+
+</div>
+<div id="gallery"></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+
+  <span class="close" onclick="closeModal()">&times;</span>
+     <!-- 🔙 BACK BUTTON -->
+    <button class="back-btn" onclick="closeModal1()">⬅ Back</button>
+  <div class="media-box">
+    <img id="modalImg" style="display:none;">
+    <video id="modalVideo" controls style="display:none;"></video>
+    <br>
+    <button onclick="downloadMedia()">⬇ Download</button>
+  </div>
+
+  <div class="comment-box">
+    <h3>💬 Comments</h3>
+    <div id="commentList"></div>
+
+    <input type="text" id="commentInput" placeholder="Write comment">
+    <button onclick="addComment()">Post</button>
+  </div>
+
+</div>
+<footer style="
+  background: #C2185B;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  margin-top: 30px;
+  font-size: 14px;
+">
+  © 2026 Ghanchisheri Cha Maharaja Mandal 
+</footer>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAY5uTqa6oUBvMUtanpzsJvh1gGGoodbDk",
+  authDomain: "ganesh-mandal-51d9b.firebaseapp.com",
+  databaseURL: "https://ganesh-mandal-51d9b-default-rtdb.firebaseio.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+let currentImage = "";
+let currentRef = null;
+let currentURL = "";
+
+/* LOAD DATA */
+firebase.database().ref("photos").on("value", snap => {
+  let data = snap.val();
+  let gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+
+  if (!data) {
+    gallery.innerHTML = "<h3>No Media</h3>";
+    return;
+  }
+
+  let grouped = {};
+
+  Object.keys(data).forEach(key => {
+    let year = data[key].year || "Others";
+
+    if (!grouped[year]) grouped[year] = [];
+
+    grouped[year].push({
+      id: key,
+      url: data[key].url,
+      type: data[key].type || "image"
+    });
+  });
+
+  let years = Object.keys(grouped).sort((a,b)=>b-a);
+
+  years.forEach(year => {
+    let section = document.createElement("div");
+    section.className = "section";
+
+    let title = document.createElement("h2");
+    title.className = "year-title";
+    title.innerText = "📅 " + year;
+
+    let carousel = document.createElement("div");
+    carousel.className = "carousel";
+
+    let items = [...grouped[year], ...grouped[year]];
+
+    items.forEach(item => {
+      carousel.appendChild(createCard(item));
+    });
+
+    section.appendChild(title);
+    section.appendChild(carousel);
+    gallery.appendChild(section);
+
+    // AUTO SCROLL LOOP
+    setInterval(() => {
+      carousel.scrollLeft += 1;
+      if (carousel.scrollLeft >= carousel.scrollWidth / 2) {
+        carousel.scrollLeft = 0;
+      }
+    }, 20);
+  });
+});
+
+/* CREATE CARD */
+function createCard(item) {
+  let card = document.createElement("div");
+  card.className = "card";
+
+  if (item.type === "video") {
+    let video = document.createElement("video");
+    video.src = item.url;
+    video.muted = true;
+    video.autoplay = true;
+    video.loop = true;
+    video.onclick = () => openModal(item.id, item.url, "video");
+    card.appendChild(video);
+  } else {
+    let img = document.createElement("img");
+    img.src = item.url;
+    img.onerror = () => img.src = "https://via.placeholder.com/250";
+    img.onclick = () => openModal(item.id, item.url, "image");
+    card.appendChild(img);
+  }
+
+  return card;
+}
+
+/* OPEN MODAL */
+function openModal(id, url, type) {
+  currentImage = id;
+  currentURL = url;
+
+  document.getElementById("modal").style.display = "flex";
+
+  let img = document.getElementById("modalImg");
+  let video = document.getElementById("modalVideo");
+
+  img.style.display = "none";
+  video.style.display = "none";
+
+  if (type === "video") {
+    video.src = url;
+    video.style.display = "block";
+  } else {
+    img.src = url;
+    img.style.display = "block";
+  }
+
+  loadComments();
+}
+
+/* CLOSE MODAL */
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+  document.getElementById("modalVideo").pause();
+}
+
+/* 🔥 FIXED DOWNLOAD */
+function downloadMedia() {
+  fetch(currentURL)
+    .then(res => res.blob())
+    .then(blob => {
+      let blobUrl = window.URL.createObjectURL(blob);
+
+      let a = document.createElement("a");
+      a.href = blobUrl;
+
+        let ext = blob.type.includes("video") ? ".mp4" : ".jpg";
+      a.download = "ganchiserichamaharaja" + ext;
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      window.URL.revokeObjectURL(blobUrl);
+    })
+    .catch(() => {
+      alert("Download failed (maybe blocked by server)");
+    });
+}
+
+/* COMMENTS */
+function addComment(){
+  let text = document.getElementById("commentInput").value;
+  if(!text.trim()) return;
+
+  firebase.database().ref("comments/" + currentImage).push({text});
+  document.getElementById("commentInput").value="";
+}
+
+function loadComments(){
+  let list = document.getElementById("commentList");
+
+  if(currentRef) currentRef.off();
+
+  currentRef = firebase.database().ref("comments/" + currentImage);
+
+  currentRef.on("value", snap=>{
+    list.innerHTML="";
+    snap.forEach(child=>{
+      let p=document.createElement("p");
+      p.innerText=child.val().text;
+      list.appendChild(p);
+    });
+  });
+}
+
+/*Comming-Soon*/
+window.onload = function(){
+  openComingSoon();
+  startCountdown();
+};
+
+/* OPEN */
+function openComingSoon(){
+  document.getElementById("comingSoonModal").style.display = "flex";
+}
+
+/* CLOSE */
+function closeComingSoon(){
+  document.getElementById("comingSoonModal").style.display = "none";
+}
+
+/* ⏳ COUNTDOWN (Ganesh Chaturthi 2026 - approx date: 13 Sep 2026) */
+function startCountdown(){
+  let targetDate = new Date("Sep 13, 2026 00:00:00").getTime();
+
+  setInterval(() => {
+    let now = new Date().getTime();
+    let diff = targetDate - now;
+
+    let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById("countdown").innerHTML =
+      "⏳ " + days + "d " + hours + "h " + minutes + "m " + seconds + "s";
+  }, 1000);
+}
+function closeModal1() {
+  document.getElementById("modal").style.display = "none";
+
+  let video = document.getElementById("modalVideo");
+  video.pause();
+  video.src = "";
+
+  document.getElementById("modalImg").src = "";
+}
+</script>
+
+</body>
+</html>

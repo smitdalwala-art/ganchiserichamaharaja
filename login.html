@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>Admin Panel</h1>
+</header>
+
+<section>
+
+<!-- LOGIN BOX -->
+<div id="loginBox">
+  <h2>Login</h2>
+  <input type="email" id="loginEmail" placeholder="Email"><br><br>
+  <input type="password" id="loginPass" placeholder="Password"><br><br>
+  <button type="button" onclick="login()">Login</button><br><br>
+  <p onclick="showRegister()" style="cursor:pointer;color:#C2185B;">Create Account</p>
+</div>
+
+<!-- REGISTER BOX -->
+<div id="registerBox" style="display:none;">
+  <h2>Register</h2>
+  <input type="email" id="regEmail" placeholder="Email"><br><br>
+  <input type="password" id="regPass" placeholder="Password"><br><br>
+  <button type="button" onclick="register()">Register</button><br><br>
+  <p onclick="showLogin()" style="cursor:pointer;color:#C2185B;">Back to Login</p>
+</div>
+
+</section>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAY5uTqa6oUBvMUtanpzsJvh1gGGoodbDk",
+  authDomain: "ganesh-mandal-51d9b.firebaseapp.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+// ================= LOGIN =================
+function login() {
+  let email = document.getElementById("loginEmail").value;
+  let pass = document.getElementById("loginPass").value;
+
+  // Allow ONLY owner
+  if (email !== "smitdalwala@gmail.com") {
+    alert("Access Denied! Only Admin can login.");
+    return;
+  }
+
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .then(() => {
+      window.location = "admin.html";
+    })
+    .catch(err => alert(err.message));
+}
+
+// ================= REGISTER =================
+function register() {
+  let email = document.getElementById("regEmail").value;
+  let pass = document.getElementById("regPass").value;
+
+  // Allow ONLY owner
+  if (email !== "smitdalwala@gmail.com") {
+    alert("Not allowed! Only Admin email can register.");
+    return;
+  }
+
+  firebase.auth().createUserWithEmailAndPassword(email, pass)
+    .then(() => {
+      alert("Admin Registered Successfully!");
+      showLogin();
+    })
+    .catch(err => alert(err.message));
+}
+
+// ================= SWITCH UI =================
+function showRegister() {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("registerBox").style.display = "block";
+}
+
+function showLogin() {
+  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("registerBox").style.display = "none";
+}
+
+// ================= EXTRA SECURITY =================
+// Prevent unauthorized direct access
+firebase.auth().onAuthStateChanged(user => {
+  if (user && user.email !== "smitdalwala@gmail.com") {
+    alert("Unauthorized access!");
+    firebase.auth().signOut();
+  }
+});
+</script>
+
+</body>
+</html>
